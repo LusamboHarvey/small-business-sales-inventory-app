@@ -1,5 +1,5 @@
 <resources>
-<string name="app_name">ZedStock POS</string>
+<string name="app_name">Zstock</string>
 <string name="app_tagline">Sales and Inventory Made Simple</string>
 
 <string name="login">Login</string>
