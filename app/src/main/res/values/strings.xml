@@ -1,0 +1,15 @@
+<resources>
+<string name="app_name">ZedStock POS</string>
+<string name="app_tagline">Sales and Inventory Made Simple</string>
+
+<string name="login">Login</string>
+<string name="register">Register</string>
+<string name="email">Email Address</string>
+<string name="password">Password</string>
+<string name="confirm_password">Confirm Password</string>
+<string name="full_name">Full Name</string>
+<string name="forgot_password">Forgot Password?</string>
+<string name="create_account">Create Account</string>
+<string name="already_have_account">Already have an account?</string>
+<string name="do_not_have_account">Don’t have an account?</string>
+</resources>
