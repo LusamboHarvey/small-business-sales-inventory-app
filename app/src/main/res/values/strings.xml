@@ -13,5 +13,11 @@
     <string name="create_account">Create Account</string>
     <string name="already_have_account">Already have an account?</string>
     <string name="do_not_have_account">Don’t have an account?</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login_instruction">Sign in to manage sales and inventory</string>
+    <string name="create_your_account">Create Your Account</string>
+    <string name="register_instruction">Enter your details to request access to ZedStock POS</string>
+    <string name="back_to_login">‹ Back to Login</string>
+    <string name="account_role_notice">Your account role will be assigned by an administrator.</string>
 
 </resources>

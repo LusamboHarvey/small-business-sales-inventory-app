@@ -10,6 +10,10 @@
         android:theme="@style/Theme.ZedStockPOS">
 
         <activity
+            android:name=".view.activities.RegisterActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".view.activities.LoginActivity"
             android:exported="false" />
 
