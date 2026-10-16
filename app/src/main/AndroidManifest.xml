@@ -46,6 +46,14 @@
             android:name=".InventoryActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".view.activities.CashierSalesActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".view.activities.CashierManagementActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

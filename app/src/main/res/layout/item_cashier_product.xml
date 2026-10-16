@@ -1,0 +1,100 @@
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:background="@drawable/bg_product_card"
+    android:elevation="3dp"
+    android:padding="10dp">
+
+    <ImageView
+        android:id="@+id/imgCashierProduct"
+        android:layout_width="0dp"
+        android:layout_height="105dp"
+        android:contentDescription="Product image"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_launcher_foreground"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txtCashierProductName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:text="Product Name"
+        android:textColor="#222222"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/imgCashierProduct"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txtCashierProductPrice"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="ZMW 0.00"
+        android:textColor="#198754"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/txtCashierProductName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCashierProductMinus"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="7dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:padding="0dp"
+        android:text="−"
+        android:textColor="#176B38"
+        android:textSize="20sp"
+        app:backgroundTint="#E4EFE7"
+        app:cornerRadius="18dp"
+        app:layout_constraintTop_toBottomOf="@id/txtCashierProductPrice"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txtCashierProductQuantity"
+        android:layout_width="0dp"
+        android:layout_height="36dp"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="#222222"
+        android:textSize="15sp"
+        app:layout_constraintTop_toTopOf="@id/btnCashierProductMinus"
+        app:layout_constraintBottom_toBottomOf="@id/btnCashierProductMinus"
+        app:layout_constraintStart_toEndOf="@id/btnCashierProductMinus"
+        app:layout_constraintEnd_toStartOf="@id/btnCashierProductPlus" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCashierProductPlus"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="7dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:padding="0dp"
+        android:text="+"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        app:backgroundTint="#198754"
+        app:cornerRadius="18dp"
+        app:layout_constraintTop_toBottomOf="@id/txtCashierProductPrice"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

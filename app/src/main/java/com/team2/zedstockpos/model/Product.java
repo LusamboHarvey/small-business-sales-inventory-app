@@ -1,3 +1,4 @@
+
 package com.team2.zedstockpos.model;
 
 public class Product {
@@ -7,7 +8,9 @@ public class Product {
     private String category;
     private double price;
     private int stockQuantity;
+    private String imagePath;
 
+    // Keep the existing constructor for compatibility
     public Product(int id, String name, String category,
                    double price, int stockQuantity) {
         this.id = id;
@@ -15,6 +18,14 @@ public class Product {
         this.category = category;
         this.price = price;
         this.stockQuantity = stockQuantity;
+        this.imagePath = null;
+    }
+
+    // Constructor with an image path
+    public Product(int id, String name, String category,
+                   double price, int stockQuantity, String imagePath) {
+        this(id, name, category, price, stockQuantity);
+        this.imagePath = imagePath;
     }
 
     public int getId() {
@@ -55,5 +66,13 @@ public class Product {
 
     public void setStockQuantity(int stockQuantity) {
         this.stockQuantity = stockQuantity;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }
