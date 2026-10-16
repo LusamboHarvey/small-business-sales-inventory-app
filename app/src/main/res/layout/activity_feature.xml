@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/featureTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Feature"
+        android:textColor="#228B22"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:id="@+id/featureDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Feature information will appear here."
+        android:textColor="#444444"
+        android:textSize="16sp"
+        android:lineSpacingExtra="6dp"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btnFeatureBack"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back to Dashboard"
+        android:textColor="@android:color/white"
+        android:backgroundTint="#228B22" />
+
+</LinearLayout>

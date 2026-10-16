@@ -24,4 +24,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "ZedStock POS"
 include(":app")
-include(":app")

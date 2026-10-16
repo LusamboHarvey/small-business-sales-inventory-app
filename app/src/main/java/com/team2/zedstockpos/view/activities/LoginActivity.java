@@ -34,7 +34,8 @@ public class LoginActivity extends AppCompatActivity {
         TextView createAccount = findViewById(R.id.txtCreateAccount);
         TextView forgotPassword = findViewById(R.id.txtForgotPassword);
 
-        String registeredEmail = getIntent().getStringExtra("registered_email");
+        String registeredEmail =
+                getIntent().getStringExtra("registered_email");
 
         if (registeredEmail != null) {
             emailInput.setText(registeredEmail);
@@ -47,12 +48,13 @@ public class LoginActivity extends AppCompatActivity {
                     LoginActivity.this,
                     RegisterActivity.class
             );
+
             startActivity(intent);
         });
 
         forgotPassword.setOnClickListener(view ->
                 Toast.makeText(
-                        this,
+                        LoginActivity.this,
                         "Password recovery will be available after API integration.",
                         Toast.LENGTH_SHORT
                 ).show()
@@ -70,6 +72,7 @@ public class LoginActivity extends AppCompatActivity {
         if (email.isEmpty()) {
             emailLayout.setError("Email address is required");
             valid = false;
+
         } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             emailLayout.setError("Enter a valid email address");
             valid = false;
@@ -78,19 +81,42 @@ public class LoginActivity extends AppCompatActivity {
         if (password.isEmpty()) {
             passwordLayout.setError("Password is required");
             valid = false;
+
         } else if (password.length() < 6) {
-            passwordLayout.setError("Password must have at least 6 characters");
+            passwordLayout.setError(
+                    "Password must have at least 6 characters"
+            );
             valid = false;
         }
 
-        if (valid) {
+        if (!valid) {
+            return;
+        }
+
+        if (email.equalsIgnoreCase("admin@zedstock.com")
+                && password.equals("admin123")) {
+
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    AdminDashboardActivity.class
+            );
+
+            intent.addFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_CLEAR_TASK
+            );
+
+            startActivity(intent);
+            finish();
+
+        } else {
+            passwordLayout.setError("Incorrect email or password");
+
             Toast.makeText(
-                    this,
-                    "Login details validated successfully",
+                    LoginActivity.this,
+                    "Use the administrator test account.",
                     Toast.LENGTH_SHORT
             ).show();
-
-            // Dashboard navigation will be added next.
         }
     }
 

@@ -19,5 +19,39 @@
     <string name="register_instruction">Enter your details to request access to ZedStock POS</string>
     <string name="back_to_login">‹ Back to Login</string>
     <string name="account_role_notice">Your account role will be assigned by an administrator.</string>
+    <string name="dashboard_greeting">Welcome back</string>
+    <string name="administrator">Administrator Dashboard</string>
+    <string name="dashboard_instruction">Monitor and manage your business</string>
+    <string name="business_overview">Business Overview</string>
+    <string name="total_products">Total Products</string>
+    <string name="low_stock_items">Low Stock Items</string>
+    <string name="management">Management</string>
+
+    <string name="products_and_categories">Products &amp; Categories</string>
+    <string name="products_description">Add and organize business products</string>
+
+    <string name="inventory">Inventory</string>
+    <string name="inventory_description">Monitor stock quantities and alerts</string>
+
+    <string name="sales_history">Sales History</string>
+    <string name="sales_description">View and manage sales transactions</string>
+
+    <string name="reports">Reports &amp; Analytics</string>
+    <string name="reports_description">Business performance and analytics</string>
+
+    <string name="user_management">User Management</string>
+    <string name="users_description">Manage staff accounts and permissions</string>
+
+    <string name="profile_settings">Profile &amp; Settings</string>
+    <string name="settings_description">App configuration and user profile</string>
+
+    <string name="logout">Log Out</string>
+
+    <!-- Dashboard Item Icons/Indicators -->
+    <string name="icon_sales">S</string>
+    <string name="icon_reports">R</string>
+    <string name="icon_users">U</string>
+    <string name="icon_settings">S</string>
+    <string name="icon_arrow_next">›</string>
 
 </resources>
