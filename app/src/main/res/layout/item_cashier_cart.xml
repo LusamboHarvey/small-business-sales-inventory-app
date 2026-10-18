@@ -1,97 +1,119 @@
 
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="7dp"
-    android:paddingBottom="7dp">
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:background="@android:color/transparent">
 
-    <TextView
-        android:id="@+id/txtCartProductName"
+    <ImageView
+        android:id="@+id/imgCartProduct"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="10dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Product image"
+        android:src="@android:drawable/ic_menu_gallery" />
+
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:maxLines="2"
-        android:ellipsize="end"
-        android:text="Product name"
-        android:textColor="#222222"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnCartMinus"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/txtCartProductPrice"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        android:text="ZMW 0.00 each"
-        android:textColor="#66736B"
-        android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@id/txtCartProductName"
-        app:layout_constraintEnd_toStartOf="@id/btnCartMinus"
-        app:layout_constraintTop_toBottomOf="@id/txtCartProductName" />
+        <TextView
+            android:id="@+id/txtCartProductName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="Product name"
+            android:textColor="#202820"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCartMinus"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp"
-        android:text="−"
-        android:textColor="#176B38"
-        android:textSize="18sp"
-        app:backgroundTint="#E4EFE7"
-        app:cornerRadius="17dp"
-        app:layout_constraintEnd_toStartOf="@id/txtCartQuantity"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/txtCartProductPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="ZMW 0.00 each"
+            android:textColor="#687268"
+            android:textSize="10sp" />
 
-    <TextView
-        android:id="@+id/txtCartQuantity"
-        android:layout_width="32dp"
-        android:layout_height="34dp"
-        android:gravity="center"
-        android:text="1"
-        android:textColor="#222222"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@id/btnCartMinus"
-        app:layout_constraintEnd_toStartOf="@id/btnCartPlus"
-        app:layout_constraintTop_toTopOf="@id/btnCartMinus"
-        app:layout_constraintBottom_toBottomOf="@id/btnCartMinus" />
+        <LinearLayout
+            android:id="@+id/cartQuantityControls"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:background="@drawable/bg_cart_quantity">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnCartPlus"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        android:padding="0dp"
-        android:text="+"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp"
-        app:backgroundTint="#198754"
-        app:cornerRadius="17dp"
-        app:layout_constraintEnd_toStartOf="@id/txtCartLineTotal"
-        app:layout_constraintTop_toTopOf="parent" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCartMinus"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:text="−"
+                android:textColor="#246B35"
+                android:textSize="16sp"
+                android:backgroundTint="#E8F0E8"
+                app:cornerRadius="14dp"
+                app:iconPadding="0dp" />
+
+            <TextView
+                android:id="@+id/txtCartQuantity"
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="1"
+                android:textColor="#202820"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCartPlus"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:padding="0dp"
+                android:text="+"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                android:backgroundTint="#246B35"
+                app:cornerRadius="14dp"
+                app:iconPadding="0dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/txtCartLineTotal"
-        android:layout_width="90dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="8dp"
+        android:minWidth="72dp"
         android:gravity="end|center_vertical"
         android:text="ZMW 0.00"
-        android:textColor="#222222"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:textColor="#202820"
+        android:textSize="11sp"
+        android:textStyle="bold" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

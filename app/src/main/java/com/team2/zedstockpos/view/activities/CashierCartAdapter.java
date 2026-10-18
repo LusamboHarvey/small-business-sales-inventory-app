@@ -1,9 +1,14 @@
 
 package com.team2.zedstockpos.view.activities;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +18,8 @@ import com.google.android.material.button.MaterialButton;
 import com.team2.zedstockpos.R;
 import com.team2.zedstockpos.model.Product;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -43,15 +50,20 @@ public class CashierCartAdapter
 
     public void setItems(List<CartItem> newItems) {
         items.clear();
-        items.addAll(newItems);
+
+        if (newItems != null) {
+            items.addAll(newItems);
+        }
+
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public CartViewHolder onCreateViewHolder(
-            @NonNull ViewGroup parent, int viewType) {
-
+            @NonNull ViewGroup parent,
+            int viewType
+    ) {
         View view = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.item_cashier_cart,
                 parent,
@@ -63,33 +75,45 @@ public class CashierCartAdapter
 
     @Override
     public void onBindViewHolder(
-            @NonNull CartViewHolder holder, int position) {
-
+            @NonNull CartViewHolder holder,
+            int position
+    ) {
         CartItem item = items.get(position);
         Product product = item.product;
 
         holder.name.setText(product.getName());
+
         holder.price.setText(String.format(
                 Locale.getDefault(),
                 "ZMW %.2f each",
                 product.getPrice()
         ));
+
         holder.quantity.setText(String.valueOf(item.quantity));
+
         holder.lineTotal.setText(String.format(
                 Locale.getDefault(),
                 "ZMW %.2f",
                 product.getPrice() * item.quantity
         ));
 
-        holder.minus.setOnClickListener(v ->
+        // Load the product image or show a placeholder.
+        loadProductImage(holder.productImage, product);
+
+        // Decrease quantity.
+        holder.minus.setOnClickListener(v -> {
+            if (listener != null) {
                 listener.onQuantityChanged(
                         product,
                         item.quantity - 1
-                )
-        );
+                );
+            }
+        });
 
+        // Increase quantity only when stock is available.
         holder.plus.setOnClickListener(v -> {
-            if (item.quantity < product.getStockQuantity()) {
+            if (item.quantity < product.getStockQuantity()
+                    && listener != null) {
                 listener.onQuantityChanged(
                         product,
                         item.quantity + 1
@@ -98,24 +122,105 @@ public class CashierCartAdapter
         });
     }
 
+    private void loadProductImage(
+            ImageView imageView,
+            Product product
+    ) {
+        // Default image shown when no product image is available.
+        imageView.setImageResource(android.R.drawable.ic_menu_gallery);
+
+        // This requires Product.java to contain getImagePath().
+        String imagePath = product.getImagePath();
+
+        if (TextUtils.isEmpty(imagePath)) {
+            return;
+        }
+
+        try {
+            if (imagePath.startsWith("content://")
+                    || imagePath.startsWith("file://")) {
+
+                Uri imageUri = Uri.parse(imagePath);
+
+                try (InputStream inputStream =
+                             imageView.getContext()
+                                     .getContentResolver()
+                                     .openInputStream(imageUri)) {
+
+                    if (inputStream != null) {
+                        Bitmap bitmap =
+                                BitmapFactory.decodeStream(inputStream);
+
+                        if (bitmap != null) {
+                            imageView.setImageBitmap(bitmap);
+                        }
+                    }
+                }
+
+            } else {
+                // Handle a regular filesystem path.
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+                    Bitmap bitmap = BitmapFactory.decodeFile(
+                            imageFile.getAbsolutePath()
+                    );
+
+                    if (bitmap != null) {
+                        imageView.setImageBitmap(bitmap);
+                    }
+                }
+            }
+
+        } catch (Exception exception) {
+            // Keep the placeholder if the image cannot be loaded.
+            imageView.setImageResource(
+                    android.R.drawable.ic_menu_gallery
+            );
+        }
+    }
+
     @Override
     public int getItemCount() {
         return items.size();
     }
 
     static class CartViewHolder extends RecyclerView.ViewHolder {
+
+        ImageView productImage;
         TextView name, price, quantity, lineTotal;
         MaterialButton minus, plus;
 
         CartViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            name = itemView.findViewById(R.id.txtCartProductName);
-            price = itemView.findViewById(R.id.txtCartProductPrice);
-            quantity = itemView.findViewById(R.id.txtCartQuantity);
-            lineTotal = itemView.findViewById(R.id.txtCartLineTotal);
-            minus = itemView.findViewById(R.id.btnCartMinus);
-            plus = itemView.findViewById(R.id.btnCartPlus);
+            productImage = itemView.findViewById(
+                    R.id.imgCartProduct
+            );
+
+            name = itemView.findViewById(
+                    R.id.txtCartProductName
+            );
+
+            price = itemView.findViewById(
+                    R.id.txtCartProductPrice
+            );
+
+            quantity = itemView.findViewById(
+                    R.id.txtCartQuantity
+            );
+
+            lineTotal = itemView.findViewById(
+                    R.id.txtCartLineTotal
+            );
+
+            minus = itemView.findViewById(
+                    R.id.btnCartMinus
+            );
+
+            plus = itemView.findViewById(
+                    R.id.btnCartPlus
+            );
         }
     }
 }

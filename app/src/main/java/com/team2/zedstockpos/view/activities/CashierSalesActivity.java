@@ -23,7 +23,9 @@ import com.team2.zedstockpos.R;
 import com.team2.zedstockpos.SessionManager;
 import com.team2.zedstockpos.model.Product;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -50,8 +52,9 @@ public class CashierSalesActivity extends AppCompatActivity {
     private MaterialButton btnCompleteSale;
     private ImageButton btnCashierMenu;
 
-    private final Map<Integer, CartItem> cart =
-            new LinkedHashMap<>();
+    private final Map<Integer, CartItem> cart = new LinkedHashMap<>();
+
+    private boolean isProcessingSale = false;
 
     private static class CartItem {
         Product product;
@@ -71,12 +74,21 @@ public class CashierSalesActivity extends AppCompatActivity {
         databaseHelper = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
 
-        // Header menu.
-        btnCashierMenu = findViewById(R.id.btnCashierMenu);
+        bindViews();
+        setupRecyclerViews();
+        setupListeners();
 
-        // Product search and lists.
-        searchCashierProducts =
-                findViewById(R.id.searchCashierProducts);
+        setupProductAdapter(databaseHelper.getAllProducts());
+        updateCartSummary();
+    }
+
+    // ---------------------------------------------------------
+    // INITIALIZATION
+    // ---------------------------------------------------------
+
+    private void bindViews() {
+        btnCashierMenu = findViewById(R.id.btnCashierMenu);
+        searchCashierProducts = findViewById(R.id.searchCashierProducts);
 
         recyclerCashierProducts =
                 findViewById(R.id.recyclerCashierProducts);
@@ -84,7 +96,6 @@ public class CashierSalesActivity extends AppCompatActivity {
         recyclerCashierCart =
                 findViewById(R.id.recyclerCashierCart);
 
-        // Cart summary.
         txtCashierCartCount =
                 findViewById(R.id.txtCashierCartCount);
 
@@ -102,8 +113,9 @@ public class CashierSalesActivity extends AppCompatActivity {
 
         btnCompleteSale =
                 findViewById(R.id.btnCompleteSale);
+    }
 
-        // Set up the available-products grid.
+    private void setupRecyclerViews() {
         recyclerCashierProducts.setLayoutManager(
                 new GridLayoutManager(this, 2)
         );
@@ -111,7 +123,6 @@ public class CashierSalesActivity extends AppCompatActivity {
         recyclerCashierProducts.setHasFixedSize(true);
         recyclerCashierProducts.setNestedScrollingEnabled(true);
 
-        // Set up the independently scrollable cart.
         recyclerCashierCart.setLayoutManager(
                 new LinearLayoutManager(this)
         );
@@ -124,43 +135,31 @@ public class CashierSalesActivity extends AppCompatActivity {
 
         recyclerCashierCart.setAdapter(cartAdapter);
 
-        // Limit cart height so it cannot consume the entire screen.
         recyclerCashierCart.post(() -> {
-            if (isFinishing() || isDestroyed()) {
-                return;
-            }
-
-            int screenHeight = getResources()
-                    .getDisplayMetrics().heightPixels;
-
-            int maxCartHeight = (int) (screenHeight * 0.22f);
-
             ViewGroup.LayoutParams params =
                     recyclerCashierCart.getLayoutParams();
 
             if (params != null) {
-                params.height = maxCartHeight;
+                params.height = (int) (
+                        getResources()
+                                .getDisplayMetrics()
+                                .heightPixels * 0.22f
+                );
+
                 recyclerCashierCart.setLayoutParams(params);
             }
         });
+    }
 
-        // Open the hamburger menu.
-        btnCashierMenu.setOnClickListener(
-                this::showCashierMenu
-        );
-
-        // Load available products.
-        setupProductAdapter(databaseHelper.getAllProducts());
-
-        // Configure product search.
-        searchCashierProducts.setQueryHint("Search products...");
+    private void setupListeners() {
+        btnCashierMenu.setOnClickListener(this::showCashierMenu);
 
         searchCashierProducts.setOnQueryTextListener(
                 new SearchView.OnQueryTextListener() {
-
                     @Override
                     public boolean onQueryTextSubmit(String query) {
                         filterProducts(query);
+                        searchCashierProducts.clearFocus();
                         return true;
                     }
 
@@ -172,48 +171,34 @@ public class CashierSalesActivity extends AppCompatActivity {
                 }
         );
 
-        // Clear the cart.
-        txtCartClear.setOnClickListener(view -> {
-            cart.clear();
-            refreshProductAdapter();
-            updateCartSummary();
-        });
+        txtCartClear.setOnClickListener(view -> clearCart());
 
-        // Checkout is still a placeholder.
-        btnCompleteSale.setOnClickListener(view ->
-                Toast.makeText(
-                        CashierSalesActivity.this,
-                        "Checkout will be implemented next.",
-                        Toast.LENGTH_SHORT
-                ).show()
+        btnCompleteSale.setOnClickListener(
+                view -> confirmCompleteSale()
         );
-
-        updateCartSummary();
     }
+
+    // ---------------------------------------------------------
+    // CASHIER MENU
+    // ---------------------------------------------------------
 
     private void showCashierMenu(View anchor) {
         PopupMenu popupMenu = new PopupMenu(this, anchor);
 
-        popupMenu.getMenu().add(
-                0,
-                1,
-                0,
-                "My Account"
-        );
-
-        popupMenu.getMenu().add(
-                0,
-                2,
-                1,
-                "Logout"
-        );
+        popupMenu.getMenu().add(0, 1, 0, "My Account");
+        popupMenu.getMenu().add(0, 2, 1, "Logout");
 
         popupMenu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == 1) {
+                String email = sessionManager.getUserEmail();
+
+                if (email == null || email.trim().isEmpty()) {
+                    email = "Unknown user";
+                }
+
                 Toast.makeText(
                         this,
-                        "Logged in as: "
-                                + sessionManager.getUserEmail(),
+                        "Logged in as: " + email,
                         Toast.LENGTH_SHORT
                 ).show();
 
@@ -234,20 +219,16 @@ public class CashierSalesActivity extends AppCompatActivity {
     private void confirmLogout() {
         new AlertDialog.Builder(this)
                 .setTitle("Logout")
-                .setMessage(
-                        "Are you sure you want to log out?"
-                )
-                .setNegativeButton("Cancel", (dialog, which) ->
-                        dialog.dismiss()
-                )
-                .setPositiveButton("Logout", (dialog, which) ->
-                        logout()
+                .setMessage("Are you sure you want to log out?")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton(
+                        "Logout",
+                        (dialog, which) -> logout()
                 )
                 .show();
     }
 
     private void logout() {
-        // Clear the saved login session only after confirmation.
         sessionManager.logout();
 
         Intent intent = new Intent(
@@ -255,7 +236,7 @@ public class CashierSalesActivity extends AppCompatActivity {
                 LoginActivity.class
         );
 
-        intent.addFlags(
+        intent.setFlags(
                 Intent.FLAG_ACTIVITY_NEW_TASK
                         | Intent.FLAG_ACTIVITY_CLEAR_TASK
         );
@@ -264,20 +245,20 @@ public class CashierSalesActivity extends AppCompatActivity {
         finish();
     }
 
+    // ---------------------------------------------------------
+    // PRODUCT DISPLAY AND SEARCH
+    // ---------------------------------------------------------
+
     private void setupProductAdapter(List<Product> products) {
         productAdapter = new CashierProductAdapter(
                 products,
                 this::onProductQuantityChanged
         );
 
-        for (Product product : products) {
-            CartItem item = cart.get(product.getId());
-
-            int quantity = item == null ? 0 : item.quantity;
-
+        for (Map.Entry<Integer, CartItem> entry : cart.entrySet()) {
             productAdapter.setQuantity(
-                    product.getId(),
-                    quantity
+                    entry.getKey(),
+                    entry.getValue().quantity
             );
         }
 
@@ -285,21 +266,25 @@ public class CashierSalesActivity extends AppCompatActivity {
     }
 
     private void refreshProductAdapter() {
-        String query = searchCashierProducts.getQuery() == null
-                ? ""
-                : searchCashierProducts.getQuery().toString();
+        String query = "";
+
+        if (searchCashierProducts != null
+                && searchCashierProducts.getQuery() != null) {
+            query = searchCashierProducts.getQuery().toString();
+        }
 
         filterProducts(query);
     }
 
     private void filterProducts(String query) {
+        List<Product> allProducts = databaseHelper.getAllProducts();
         List<Product> filteredProducts = new ArrayList<>();
 
         String searchText = query == null
                 ? ""
-                : query.toLowerCase(Locale.ROOT).trim();
+                : query.trim().toLowerCase(Locale.ROOT);
 
-        for (Product product : databaseHelper.getAllProducts()) {
+        for (Product product : allProducts) {
             String name = product.getName() == null
                     ? ""
                     : product.getName().toLowerCase(Locale.ROOT);
@@ -317,9 +302,39 @@ public class CashierSalesActivity extends AppCompatActivity {
         setupProductAdapter(filteredProducts);
     }
 
+    private void refreshProductsAndCart() {
+        List<Product> latestProducts = databaseHelper.getAllProducts();
+
+        Map<Integer, Product> productsById = new LinkedHashMap<>();
+
+        for (Product product : latestProducts) {
+            productsById.put(product.getId(), product);
+        }
+
+        for (CartItem item : cart.values()) {
+            Product latestProduct =
+                    productsById.get(item.product.getId());
+
+            if (latestProduct != null) {
+                item.product = latestProduct;
+            }
+        }
+
+        refreshProductAdapter();
+        updateCartSummary();
+    }
+
+    // ---------------------------------------------------------
+    // CART MANAGEMENT
+    // ---------------------------------------------------------
+
     private void onProductQuantityChanged(
             Product product,
-            int quantity) {
+            int quantity
+    ) {
+        if (product == null || isProcessingSale) {
+            return;
+        }
 
         int productId = product.getId();
 
@@ -330,6 +345,7 @@ public class CashierSalesActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
+            refreshProductAdapter();
             return;
         }
 
@@ -352,6 +368,43 @@ public class CashierSalesActivity extends AppCompatActivity {
         updateCartSummary();
     }
 
+    private void clearCart() {
+        if (isProcessingSale) {
+            return;
+        }
+
+        if (cart.isEmpty()) {
+            Toast.makeText(
+                    this,
+                    "The cart is already empty.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Clear Cart")
+                .setMessage(
+                        "Are you sure you want to remove all items "
+                                + "from the current sale?"
+                )
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Clear", (dialog, which) -> {
+                    cart.clear();
+
+                    refreshProductAdapter();
+                    updateCartSummary();
+
+                    Toast.makeText(
+                            this,
+                            "Cart cleared.",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                })
+                .show();
+    }
+
     private void updateCartSummary() {
         int totalQuantity = 0;
         double subtotal = 0.0;
@@ -362,7 +415,8 @@ public class CashierSalesActivity extends AppCompatActivity {
         for (CartItem item : cart.values()) {
             totalQuantity += item.quantity;
 
-            subtotal += item.product.getPrice() * item.quantity;
+            subtotal +=
+                    item.product.getPrice() * item.quantity;
 
             displayItems.add(
                     new CashierCartAdapter.CartItem(
@@ -379,29 +433,11 @@ public class CashierSalesActivity extends AppCompatActivity {
                 "Current Sale (" + totalQuantity + " items)"
         );
 
-        txtCashierSubtotal.setText(
-                String.format(
-                        Locale.getDefault(),
-                        "ZMW %.2f",
-                        subtotal
-                )
-        );
-
+        txtCashierSubtotal.setText(formatMoney(subtotal));
         txtCashierDiscount.setText(
-                String.format(
-                        Locale.getDefault(),
-                        "- ZMW %.2f",
-                        discount
-                )
+                "- " + formatMoney(discount)
         );
-
-        txtCashierTotal.setText(
-                String.format(
-                        Locale.getDefault(),
-                        "ZMW %.2f",
-                        total
-                )
-        );
+        txtCashierTotal.setText(formatMoney(total));
 
         cartAdapter.setItems(displayItems);
 
@@ -409,7 +445,225 @@ public class CashierSalesActivity extends AppCompatActivity {
                 cart.isEmpty() ? View.GONE : View.VISIBLE
         );
 
-        btnCompleteSale.setEnabled(!cart.isEmpty());
-        txtCartClear.setEnabled(!cart.isEmpty());
+        boolean hasItems = !cart.isEmpty() && !isProcessingSale;
+
+        btnCompleteSale.setEnabled(hasItems);
+        txtCartClear.setEnabled(hasItems);
+
+        btnCompleteSale.setAlpha(hasItems ? 1.0f : 0.5f);
+        txtCartClear.setAlpha(hasItems ? 1.0f : 0.5f);
+    }
+
+    // ---------------------------------------------------------
+    // CHECKOUT CONFIRMATION
+    // ---------------------------------------------------------
+
+    private void confirmCompleteSale() {
+        if (isProcessingSale) {
+            return;
+        }
+
+        if (cart.isEmpty()) {
+            Toast.makeText(
+                    this,
+                    "Add products to the cart first.",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        int itemCount = 0;
+
+        for (CartItem item : cart.values()) {
+            itemCount += item.quantity;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Complete Sale")
+                .setMessage(
+                        "Confirm this sale?\n\n"
+                                + "Items: " + itemCount + "\n"
+                                + "Estimated total: "
+                                + txtCashierTotal.getText()
+                                + "\n\n"
+                                + "Stock will be updated after "
+                                + "the sale is saved."
+                )
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton(
+                        "Complete Sale",
+                        (dialog, which) -> completeSale()
+                )
+                .show();
+    }
+
+    // ---------------------------------------------------------
+    // SAVE SALE AND OPEN RECEIPT
+    // ---------------------------------------------------------
+
+    private void completeSale() {
+        if (isProcessingSale || cart.isEmpty()) {
+            return;
+        }
+
+        String cashierEmail = sessionManager.getUserEmail();
+
+        if (cashierEmail == null
+                || cashierEmail.trim().isEmpty()) {
+            Toast.makeText(
+                    this,
+                    "Your login session could not be verified. "
+                            + "Please log in again.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        // Build the product ID -> quantity map for DatabaseHelper.
+        Map<Integer, Integer> requestedItems =
+                new LinkedHashMap<>();
+
+        for (Map.Entry<Integer, CartItem> entry : cart.entrySet()) {
+            requestedItems.put(
+                    entry.getKey(),
+                    entry.getValue().quantity
+            );
+        }
+
+        isProcessingSale = true;
+        updateCartSummary();
+
+        DatabaseHelper.SaleResult result;
+
+        try {
+            result = databaseHelper.completeSale(
+                    cashierEmail.trim(),
+                    requestedItems
+            );
+        } catch (Exception exception) {
+            isProcessingSale = false;
+
+            refreshProductsAndCart();
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Sale Error")
+                    .setMessage(
+                            "An unexpected error occurred while "
+                                    + "saving the sale. Your cart "
+                                    + "has been kept."
+                    )
+                    .setPositiveButton("OK", null)
+                    .show();
+
+            return;
+        }
+
+        if (result == null || !result.success) {
+            isProcessingSale = false;
+
+            refreshProductsAndCart();
+
+            String message = result != null
+                    && result.message != null
+                    && !result.message.trim().isEmpty()
+                    ? result.message
+                    : "The sale could not be completed.";
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Sale Not Completed")
+                    .setMessage(
+                            message
+                                    + "\n\nYour cart has been kept. "
+                                    + "Check product availability "
+                                    + "and try again."
+                    )
+                    .setPositiveButton("OK", null)
+                    .show();
+
+            return;
+        }
+
+        // Snapshot the cart before clearing it.
+        int size = cart.size();
+
+        String[] itemNames = new String[size];
+        int[] quantities = new int[size];
+        double[] prices = new double[size];
+
+        int index = 0;
+
+        for (CartItem item : cart.values()) {
+            itemNames[index] = item.product.getName();
+            quantities[index] = item.quantity;
+            prices[index] = item.product.getPrice();
+            index++;
+        }
+
+        String receiptNumber = String.format(
+                Locale.US,
+                "RCP-%d-%04d",
+                System.currentTimeMillis(),
+                result.saleId % 10000
+        );
+
+        String dateTime = new SimpleDateFormat(
+                "dd MMM yyyy • hh:mm a",
+                Locale.getDefault()
+        ).format(new Date());
+
+        Intent receiptIntent = new Intent(
+                CashierSalesActivity.this,
+                ReceiptActivity.class
+        );
+
+        receiptIntent.putExtra(
+                "receipt_number",
+                receiptNumber
+        );
+
+        receiptIntent.putExtra(
+                "cashier",
+                cashierEmail.trim()
+        );
+
+        receiptIntent.putExtra("date_time", dateTime);
+        receiptIntent.putExtra("item_names", itemNames);
+        receiptIntent.putExtra("quantities", quantities);
+        receiptIntent.putExtra("prices", prices);
+        receiptIntent.putExtra("subtotal", result.subtotal);
+
+        receiptIntent.putExtra(
+                "discount",
+                Math.max(0.0, result.subtotal - result.total)
+        );
+
+        receiptIntent.putExtra("total", result.total);
+        receiptIntent.putExtra("payment_method", "Cash");
+
+        // The sale has been saved successfully. Clear the cart
+        // and navigate to the receipt screen.
+        cart.clear();
+        isProcessingSale = false;
+
+        startActivity(receiptIntent);
+    }
+
+    private String formatMoney(double amount) {
+        return String.format(
+                Locale.getDefault(),
+                "ZMW %.2f",
+                amount
+        );
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (databaseHelper != null) {
+            databaseHelper.close();
+        }
+
+        super.onDestroy();
     }
 }
