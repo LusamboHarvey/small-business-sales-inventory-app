@@ -1,4 +1,3 @@
-
 package com.team2.zedstockpos.view.activities;
 
 import android.os.Bundle;
@@ -16,17 +15,19 @@ import com.google.android.material.button.MaterialButton;
 import com.team2.zedstockpos.DatabaseHelper;
 import com.team2.zedstockpos.R;
 
+// Screen that lets the admin create cashier accounts and list them
 public class CashierManagementActivity extends AppCompatActivity {
 
-    private DatabaseHelper databaseHelper;
-    private TextView cashierList;
-    private TextView cashierPlaceholder;
+    private DatabaseHelper databaseHelper; // handles all database work
+    private TextView cashierList;          // TextView that displays the cashier list
+    private TextView cashierPlaceholder;   // shows the empty-state message
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cashier_management);
 
+        // Open the database helper
         databaseHelper = new DatabaseHelper(this);
 
         cashierPlaceholder =
@@ -35,16 +36,21 @@ public class CashierManagementActivity extends AppCompatActivity {
         MaterialButton addCashierButton =
                 findViewById(R.id.btnAddCashier);
 
+        // Reuse the same TextView for both the placeholder and the real list
         cashierList = cashierPlaceholder;
 
+        // Button opens a dialog for creating a new cashier account
         addCashierButton.setOnClickListener(
                 view -> showCreateCashierDialog()
         );
 
+        // Show any existing cashiers
         loadCashiers();
     }
 
+    // Show a dialog with name / email / password fields
     private void showCreateCashierDialog() {
+        // Build a vertical form programmatically
         LinearLayout form = new LinearLayout(this);
         form.setOrientation(LinearLayout.VERTICAL);
 
@@ -53,11 +59,13 @@ public class CashierManagementActivity extends AppCompatActivity {
 
         form.setPadding(padding, padding, padding, 0);
 
+        // Name input
         EditText nameInput = new EditText(this);
         nameInput.setHint("Cashier full name");
         nameInput.setSingleLine(true);
         form.addView(nameInput);
 
+        // Email input
         EditText emailInput = new EditText(this);
         emailInput.setHint("Email address");
         emailInput.setInputType(
@@ -67,6 +75,7 @@ public class CashierManagementActivity extends AppCompatActivity {
         emailInput.setSingleLine(true);
         form.addView(emailInput);
 
+        // Password input
         EditText passwordInput = new EditText(this);
         passwordInput.setHint("Temporary password (minimum 6 characters)");
         passwordInput.setInputType(
@@ -76,6 +85,7 @@ public class CashierManagementActivity extends AppCompatActivity {
         passwordInput.setSingleLine(true);
         form.addView(passwordInput);
 
+        // Create the dialog with Cancel / Create buttons
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Create Cashier Account")
                 .setView(form)
@@ -83,6 +93,8 @@ public class CashierManagementActivity extends AppCompatActivity {
                 .setPositiveButton("Create", null)
                 .create();
 
+        // Override the positive button after the dialog is shown so we can
+        // validate first and keep the dialog open if something is wrong
         dialog.setOnShowListener(ignored ->
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                         .setOnClickListener(view -> {
@@ -93,6 +105,7 @@ public class CashierManagementActivity extends AppCompatActivity {
                             String password = passwordInput.getText()
                                     .toString();
 
+                            // Validate inputs before hitting the database
                             if (name.isEmpty()
                                     || email.isEmpty()
                                     || password.length() < 6
@@ -106,6 +119,7 @@ public class CashierManagementActivity extends AppCompatActivity {
                                 return;
                             }
 
+                            // Save the new cashier to the database
                             boolean created = databaseHelper.createCashier(
                                     name,
                                     email,
@@ -119,9 +133,11 @@ public class CashierManagementActivity extends AppCompatActivity {
                                         Toast.LENGTH_SHORT
                                 ).show();
 
+                                // Refresh the list and close the dialog
                                 loadCashiers();
                                 dialog.dismiss();
                             } else {
+                                // Probably a duplicate email
                                 Toast.makeText(
                                         this,
                                         "Account could not be created. The email may already exist.",
@@ -135,10 +151,12 @@ public class CashierManagementActivity extends AppCompatActivity {
     }
 
 
+    // Load all cashiers from the database and display them
     private void loadCashiers() {
         java.util.List<String[]> cashiers =
                 databaseHelper.getAllCashiers();
 
+        // Empty state
         if (cashiers.isEmpty()) {
             cashierPlaceholder.setText(
                     "No cashier accounts yet.\n"
@@ -147,6 +165,7 @@ public class CashierManagementActivity extends AppCompatActivity {
             return;
         }
 
+        // Build the display text: name + email for each cashier
         StringBuilder text = new StringBuilder();
 
         text.append("Total cashiers: ")
