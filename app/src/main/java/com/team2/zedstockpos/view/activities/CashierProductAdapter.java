@@ -1,4 +1,3 @@
-
 package com.team2.zedstockpos.view.activities;
 
 import android.graphics.BitmapFactory;
@@ -22,14 +21,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+// Adapter that displays products in the cashier screen
 public class CashierProductAdapter
         extends RecyclerView.Adapter<CashierProductAdapter.ProductViewHolder> {
 
+    // Callback so the activity can react when a quantity changes
     public interface QuantityListener {
         void onQuantityChanged(Product product, int quantity);
     }
 
     private final List<Product> products;
+    // Keeps track of selected quantity per product ID
     private final Map<Integer, Integer> quantities = new HashMap<>();
     private final QuantityListener listener;
 
@@ -45,6 +47,7 @@ public class CashierProductAdapter
     public ProductViewHolder onCreateViewHolder(
             @NonNull ViewGroup parent, int viewType) {
 
+        // Inflate one product row layout
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_cashier_product, parent, false);
 
@@ -55,10 +58,12 @@ public class CashierProductAdapter
     public void onBindViewHolder(
             @NonNull ProductViewHolder holder, int position) {
 
+        // Get the product for this row
         Product product = products.get(position);
         int productId = product.getId();
         int stock = product.getStockQuantity();
 
+        // Show basic product info
         holder.txtName.setText(product.getName());
 
         holder.txtPrice.setText(
@@ -69,6 +74,7 @@ public class CashierProductAdapter
                 )
         );
 
+        // Load product image from file if it exists
         String imagePath = product.getImagePath();
 
         if (imagePath != null && !imagePath.trim().isEmpty()) {
@@ -79,6 +85,7 @@ public class CashierProductAdapter
                         BitmapFactory.decodeFile(imageFile.getAbsolutePath())
                 );
             } else {
+                // Fallback image
                 holder.imgProduct.setImageResource(
                         R.drawable.ic_launcher_foreground
                 );
@@ -89,15 +96,19 @@ public class CashierProductAdapter
             );
         }
 
+        // Show current selected quantity
         int quantity = quantities.getOrDefault(productId, 0);
         holder.txtQuantity.setText(String.valueOf(quantity));
 
+        // Dim the row if out of stock
         boolean outOfStock = stock <= 0;
         holder.itemView.setAlpha(outOfStock ? 0.55f : 1.0f);
 
+        // Enable/disable buttons based on stock and current quantity
         holder.btnPlus.setEnabled(!outOfStock && quantity < stock);
         holder.btnMinus.setEnabled(quantity > 0);
 
+        // Increase quantity
         holder.btnPlus.setOnClickListener(v -> {
             int current = quantities.getOrDefault(productId, 0);
 
@@ -120,6 +131,7 @@ public class CashierProductAdapter
             listener.onQuantityChanged(product, updated);
         });
 
+        // Decrease quantity
         holder.btnMinus.setOnClickListener(v -> {
             int current = quantities.getOrDefault(productId, 0);
 
@@ -143,6 +155,7 @@ public class CashierProductAdapter
         });
     }
 
+    // Programmatically set a quantity for a product
     public void setQuantity(int productId, int quantity) {
         if (quantity <= 0) {
             quantities.remove(productId);
@@ -158,6 +171,7 @@ public class CashierProductAdapter
         return products.size();
     }
 
+    // Holds references to views in one row
     static class ProductViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imgProduct;
@@ -170,6 +184,7 @@ public class CashierProductAdapter
         ProductViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            // Find views once per row
             imgProduct = itemView.findViewById(R.id.imgCashierProduct);
             txtName = itemView.findViewById(R.id.txtCashierProductName);
             txtPrice = itemView.findViewById(R.id.txtCashierProductPrice);
