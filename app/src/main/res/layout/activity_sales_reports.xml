@@ -1,0 +1,465 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#F7F8F6">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/btnReportsMenu"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="☰"
+            android:textSize="25sp"
+            android:textColor="#205D36"
+            android:contentDescription="Open menu" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Sales Reports &amp; Analytics"
+            android:textColor="#173F2A"
+            android:textStyle="bold"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/btnReportFilter"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="▽"
+            android:textSize="27sp"
+            android:textColor="#34443A"
+            android:contentDescription="Filter reports" />
+    </LinearLayout>
+
+    <!-- Scrollable report content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="14dp"
+            android:paddingBottom="18dp">
+
+            <!-- Period selector -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:orientation="horizontal"
+                android:padding="3dp"
+                android:background="@drawable/bg_report_segment">
+
+                <TextView
+                    android:id="@+id/btnDaily"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Daily"
+                    android:textSize="14sp"
+                    android:textColor="#69716B" />
+
+                <TextView
+                    android:id="@+id/btnWeekly"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:background="@drawable/bg_report_selected"
+                    android:text="Weekly"
+                    android:textSize="14sp"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnMonthly"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="Monthly"
+                    android:textSize="14sp"
+                    android:textColor="#69716B" />
+            </LinearLayout>
+
+            <!-- Date range -->
+            <TextView
+                android:id="@+id/txtReportDateRange"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:gravity="center_vertical"
+                android:text="Select date range"
+                android:textSize="16sp"
+                android:textColor="#252B27"
+                android:paddingStart="8dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Summary cards -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <!-- Revenue -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="5dp"
+                    android:padding="10dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_report_card">
+
+                    <TextView
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_report_icon_green"
+                        android:text="Z"
+                        android:textColor="#246B3B"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Total Revenue"
+                        android:textSize="11sp"
+                        android:textColor="#68716B" />
+
+                    <TextView
+                        android:id="@+id/txtReportRevenue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="ZMW 0.00"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:textColor="#1F2923" />
+
+                    <TextView
+                        android:id="@+id/txtRevenueChange"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="— vs previous"
+                        android:textSize="10sp"
+                        android:textColor="#246B3B" />
+                </LinearLayout>
+
+                <!-- Transactions -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="3dp"
+                    android:padding="10dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_report_card">
+
+                    <TextView
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_report_icon_orange"
+                        android:text="▣"
+                        android:textSize="21sp"
+                        android:textColor="#E56A16" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Transactions"
+                        android:textSize="11sp"
+                        android:textColor="#68716B" />
+
+                    <TextView
+                        android:id="@+id/txtReportTransactions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0"
+                        android:textStyle="bold"
+                        android:textSize="21sp"
+                        android:textColor="#1F2923" />
+
+                    <TextView
+                        android:id="@+id/txtTransactionsChange"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="— vs previous"
+                        android:textSize="10sp"
+                        android:textColor="#246B3B" />
+                </LinearLayout>
+
+                <!-- Stock turnover -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="160dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    android:padding="10dp"
+                    android:orientation="vertical"
+                    android:background="@drawable/bg_report_card">
+
+                    <TextView
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:gravity="center"
+                        android:background="@drawable/bg_report_icon_green"
+                        android:text="▣"
+                        android:textColor="#246B3B"
+                        android:textSize="22sp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Stock Turnover"
+                        android:textSize="11sp"
+                        android:textColor="#68716B" />
+
+                    <TextView
+                        android:id="@+id/txtStockTurnover"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="N/A"
+                        android:textStyle="bold"
+                        android:textSize="21sp"
+                        android:textColor="#1F2923" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:text="Inventory metric"
+                        android:textSize="10sp"
+                        android:textColor="#68716B" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Revenue chart -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:background="@drawable/bg_report_card">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Revenue Overview"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:textColor="#202923" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="ZMW • Selected period"
+                    android:textSize="12sp"
+                    android:textColor="#788079" />
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/revenueChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:layout_marginTop="8dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="● This period"
+                        android:textColor="#246B3B"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="20dp"
+                        android:text="● Previous period"
+                        android:textColor="#788079"
+                        android:textSize="11sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Period comparison -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:padding="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:background="@drawable/bg_report_card">
+
+                <TextView
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:gravity="center"
+                    android:background="@drawable/bg_report_icon_green"
+                    android:text="↗"
+                    android:textSize="26sp"
+                    android:textColor="#246B3B" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="This period vs previous"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:textColor="#263029" />
+
+                    <TextView
+                        android:id="@+id/txtRevenueComparison"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Comparison will appear here"
+                        android:textSize="12sp"
+                        android:textColor="#59635B" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtRevenuePercentage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="—"
+                    android:textStyle="bold"
+                    android:textColor="#246B3B"
+                    android:background="@drawable/bg_report_icon_green"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Best-selling products -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:padding="14dp"
+                android:orientation="vertical"
+                android:background="@drawable/bg_report_card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Best Selling Products"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="#202923" />
+
+                    <TextView
+                        android:id="@+id/btnViewAllProducts"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="View all"
+                        android:textColor="#E56A16"
+                        android:textSize="13sp"
+                        android:paddingHorizontal="8dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="36dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Product"
+                        android:textSize="11sp"
+                        android:textColor="#788079" />
+
+                    <TextView
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Qty Sold"
+                        android:textSize="11sp"
+                        android:textColor="#788079" />
+
+                    <TextView
+                        android:layout_width="105dp"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:text="Revenue"
+                        android:textSize="11sp"
+                        android:textColor="#788079" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#E8EBE7" />
+
+                <LinearLayout
+                    android:id="@+id/bestSellingProductsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <TextView
+                    android:id="@+id/txtNoBestSellingProducts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:text="No sales recorded for this period."
+                    android:textColor="#788079"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

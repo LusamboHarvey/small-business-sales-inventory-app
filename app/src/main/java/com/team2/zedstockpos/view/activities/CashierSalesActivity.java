@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.button.MaterialButton;
 import com.team2.zedstockpos.DatabaseHelper;
 import com.team2.zedstockpos.R;
+import com.team2.zedstockpos.SaleSyncManager;
 import com.team2.zedstockpos.SessionManager;
 import com.team2.zedstockpos.model.Product;
 
@@ -35,6 +36,7 @@ public class CashierSalesActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
     private SessionManager sessionManager;
+    private SaleSyncManager saleSyncManager;
 
     private SearchView searchCashierProducts;
     private RecyclerView recyclerCashierProducts;
@@ -73,6 +75,7 @@ public class CashierSalesActivity extends AppCompatActivity {
 
         databaseHelper = new DatabaseHelper(this);
         sessionManager = new SessionManager(this);
+        saleSyncManager = new SaleSyncManager(this);
 
         bindViews();
         setupRecyclerViews();
@@ -80,6 +83,9 @@ public class CashierSalesActivity extends AppCompatActivity {
 
         setupProductAdapter(databaseHelper.getAllProducts());
         updateCartSummary();
+
+        // Retry any previously queued sales when this screen opens.
+        synchronizePendingSales(false);
     }
 
     // ---------------------------------------------------------
@@ -521,7 +527,6 @@ public class CashierSalesActivity extends AppCompatActivity {
             return;
         }
 
-        // Build the product ID -> quantity map for DatabaseHelper.
         Map<Integer, Integer> requestedItems =
                 new LinkedHashMap<>();
 
@@ -544,7 +549,6 @@ public class CashierSalesActivity extends AppCompatActivity {
             );
         } catch (Exception exception) {
             isProcessingSale = false;
-
             refreshProductsAndCart();
 
             new AlertDialog.Builder(this)
@@ -562,7 +566,6 @@ public class CashierSalesActivity extends AppCompatActivity {
 
         if (result == null || !result.success) {
             isProcessingSale = false;
-
             refreshProductsAndCart();
 
             String message = result != null
@@ -618,16 +621,8 @@ public class CashierSalesActivity extends AppCompatActivity {
                 ReceiptActivity.class
         );
 
-        receiptIntent.putExtra(
-                "receipt_number",
-                receiptNumber
-        );
-
-        receiptIntent.putExtra(
-                "cashier",
-                cashierEmail.trim()
-        );
-
+        receiptIntent.putExtra("receipt_number", receiptNumber);
+        receiptIntent.putExtra("cashier", cashierEmail.trim());
         receiptIntent.putExtra("date_time", dateTime);
         receiptIntent.putExtra("item_names", itemNames);
         receiptIntent.putExtra("quantities", quantities);
@@ -642,12 +637,48 @@ public class CashierSalesActivity extends AppCompatActivity {
         receiptIntent.putExtra("total", result.total);
         receiptIntent.putExtra("payment_method", "Cash");
 
-        // The sale has been saved successfully. Clear the cart
-        // and navigate to the receipt screen.
+        // The sale is saved locally and queued. Start sync in the
+        // background without delaying receipt navigation.
+        synchronizePendingSales(true);
+
         cart.clear();
         isProcessingSale = false;
 
+        updateCartSummary();
         startActivity(receiptIntent);
+    }
+
+    // ---------------------------------------------------------
+    // SALE SYNCHRONIZATION
+    // ---------------------------------------------------------
+
+    private void synchronizePendingSales(boolean showResult) {
+        if (saleSyncManager == null) {
+            return;
+        }
+
+        saleSyncManager.syncPendingSales((syncedCount, failedCount) -> {
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
+
+            if (showResult && syncedCount > 0) {
+                Toast.makeText(
+                        CashierSalesActivity.this,
+                        syncedCount + " sale(s) synchronised successfully.",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+
+            if (showResult && failedCount > 0) {
+                Toast.makeText(
+                        CashierSalesActivity.this,
+                        "Some sales remain unsynchronised. "
+                                + "They are still saved locally.",
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+        });
     }
 
     private String formatMoney(double amount) {
@@ -660,6 +691,13 @@ public class CashierSalesActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        // shutdown() lets an already-running task finish.
+        // The manager should not be reused after this Activity dies.
+        if (saleSyncManager != null) {
+            saleSyncManager.shutdown();
+            saleSyncManager = null;
+        }
+
         if (databaseHelper != null) {
             databaseHelper.close();
         }
