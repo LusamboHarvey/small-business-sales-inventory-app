@@ -1,4 +1,3 @@
-
 package com.team2.zedstockpos.view.activities;
 
 import android.graphics.Bitmap;
@@ -24,13 +23,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+// Adapter that shows the items currently in the cashier's cart
 public class CashierCartAdapter
         extends RecyclerView.Adapter<CashierCartAdapter.CartViewHolder> {
 
+    // Callback so the activity can update quantity when +/- is pressed
     public interface CartListener {
         void onQuantityChanged(Product product, int quantity);
     }
 
+    // Simple wrapper that pairs a product with its selected quantity
     public static class CartItem {
         public final Product product;
         public final int quantity;
@@ -41,13 +43,14 @@ public class CashierCartAdapter
         }
     }
 
-    private final List<CartItem> items = new ArrayList<>();
-    private final CartListener listener;
+    private final List<CartItem> items = new ArrayList<>(); // current cart rows
+    private final CartListener listener; // notifies activity of changes
 
     public CashierCartAdapter(CartListener listener) {
         this.listener = listener;
     }
 
+    // Replace the cart list and refresh the UI
     public void setItems(List<CartItem> newItems) {
         items.clear();
 
@@ -64,6 +67,7 @@ public class CashierCartAdapter
             @NonNull ViewGroup parent,
             int viewType
     ) {
+        // Inflate one cart row layout
         View view = LayoutInflater.from(parent.getContext()).inflate(
                 R.layout.item_cashier_cart,
                 parent,
@@ -81,16 +85,20 @@ public class CashierCartAdapter
         CartItem item = items.get(position);
         Product product = item.product;
 
+        // Populate the row views
         holder.name.setText(product.getName());
 
+        // Show price per unit
         holder.price.setText(String.format(
                 Locale.getDefault(),
                 "ZMW %.2f each",
                 product.getPrice()
         ));
 
+        // Show selected quantity
         holder.quantity.setText(String.valueOf(item.quantity));
 
+        // Show total for this row = price * quantity
         holder.lineTotal.setText(String.format(
                 Locale.getDefault(),
                 "ZMW %.2f",
@@ -137,6 +145,7 @@ public class CashierCartAdapter
         }
 
         try {
+            // Handle content:// or file:// URIs (e.g., picked via photo picker)
             if (imagePath.startsWith("content://")
                     || imagePath.startsWith("file://")) {
 
@@ -182,9 +191,11 @@ public class CashierCartAdapter
 
     @Override
     public int getItemCount() {
+        // Number of cart rows
         return items.size();
     }
 
+    // Holds references to views in one cart row
     static class CartViewHolder extends RecyclerView.ViewHolder {
 
         ImageView productImage;
@@ -194,6 +205,7 @@ public class CashierCartAdapter
         CartViewHolder(@NonNull View itemView) {
             super(itemView);
 
+            // Find views once per row (avoids repeated findViewById calls)
             productImage = itemView.findViewById(
                     R.id.imgCartProduct
             );
